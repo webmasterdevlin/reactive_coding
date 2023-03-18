@@ -1,0 +1,14 @@
+{
+  "folders": [
+    {
+      "path": "product-management"
+    },
+    {
+      "path": "declarative-tour-of-heroes"
+    },
+    {
+      "path": "imperative-tour-of-heroes"
+    }
+  ],
+  "settings": {}
+}
