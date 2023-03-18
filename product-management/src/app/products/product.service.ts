@@ -1,17 +1,31 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { combineLatest, BehaviorSubject, throwError, EMPTY, Observable } from 'rxjs';
-import { catchError, tap, map, switchMap, filter, shareReplay, scan } from 'rxjs/operators';
+import {
+  combineLatest,
+  BehaviorSubject,
+  throwError,
+  EMPTY,
+  Observable,
+} from 'rxjs';
+import {
+  catchError,
+  tap,
+  map,
+  switchMap,
+  filter,
+  shareReplay,
+  scan,
+} from 'rxjs/operators';
 
 import { Product } from './product';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ProductService {
   private productsUrl = 'api/products';
-  pageSizes = [2, 3, 5];
+  pageSizes = [2, 3, 4, 5];
 
   // Filter/paging criteria
   private filterSubject = new BehaviorSubject<string>('');
@@ -23,66 +37,54 @@ export class ProductService {
   private pageNumberSubject = new BehaviorSubject<number>(1);
 
   // List of products
-  allProducts$ = this.http.get<Product[]>(this.productsUrl)
-    .pipe(
-      tap(response => console.log(JSON.stringify(response))),
-      shareReplay(1),
-      catchError(this.handleError)
-    );
+  allProducts$ = this.http.get<Product[]>(this.productsUrl).pipe(
+    tap((response) => console.log(JSON.stringify(response))),
+    shareReplay(1),
+    catchError(this.handleError)
+  );
 
   // Filtered products
   // This is a separate stream to get the total number of products to display
   filteredProducts$ = combineLatest([
     this.allProducts$,
-    this.filterAction$])
-    .pipe(
-      // Perform the filtering
-      map(([products, filterBy]) =>
-        this.performFilter(products, filterBy))
-    );
+    this.filterAction$,
+  ]).pipe(
+    // Perform the filtering
+    map(([products, filterBy]) => this.performFilter(products, filterBy))
+  );
 
   // Total results
-  totalResults$ = this.filteredProducts$
-    .pipe(
-      map(products => products.length)
-    );
+  totalResults$ = this.filteredProducts$.pipe(
+    map((products) => products.length)
+  );
 
   // Total pages
-  totalPages$ = combineLatest([
-    this.totalResults$,
-    this.pageSizeAction$
-  ])
-    .pipe(
-      map(([total, pageSize]) =>
-        Math.ceil(total / pageSize))
-    );
+  totalPages$ = combineLatest([this.totalResults$, this.pageSizeAction$]).pipe(
+    map(([total, pageSize]) => Math.ceil(total / pageSize))
+  );
 
   // Current page
   // Emitting 0 reinitializes the page count
-  currentPage$ = this.pageNumberSubject
-    .pipe(
-      scan((acc, one) => {
-        if (one === 0) {
-          return 1;
-        }
-        else {
-          return acc + one;
-        }
-      })
-    );
+  currentPage$ = this.pageNumberSubject.pipe(
+    scan((acc, one) => {
+      if (one === 0) {
+        return 1;
+      } else {
+        return acc + one;
+      }
+    })
+  );
 
   products$ = combineLatest([
     this.filteredProducts$,
     this.currentPage$,
-    this.pageSizeAction$
-  ])
-    .pipe(
-      // Perform the filtering
-      map(([filteredProducts, pageNumber, pageSize]) =>
-        filteredProducts.slice((pageNumber - 1) * pageSize,
-          pageNumber * pageSize)
-      )
-    );
+    this.pageSizeAction$,
+  ]).pipe(
+    // Perform the filtering
+    map(([filteredProducts, pageNumber, pageSize]) =>
+      filteredProducts.slice((pageNumber - 1) * pageSize, pageNumber * pageSize)
+    )
+  );
 
   // If the paging can be done on the server, it would look more like this
   // products$ = combineLatest([
@@ -106,19 +108,18 @@ export class ProductService {
   private productSelectedSubject = new BehaviorSubject<number>(0);
   productSelectedAction$ = this.productSelectedSubject.asObservable();
 
-  product$ = this.productSelectedAction$
-    .pipe(
-      filter(id => !!id),
-      switchMap(selectedProductId =>
-        this.http.get<Product>(`${this.productsUrl}/${selectedProductId}`)
-          .pipe(
-            tap(response => console.log(JSON.stringify(response))),
-            map(p => ({ ...p, profit: p.price - p.cost }) as Product),
-            catchError(this.handleError)
-          )
-      ));
+  product$ = this.productSelectedAction$.pipe(
+    filter((id) => !!id),
+    switchMap((selectedProductId) =>
+      this.http.get<Product>(`${this.productsUrl}/${selectedProductId}`).pipe(
+        tap((response) => console.log(JSON.stringify(response))),
+        map((p) => ({ ...p, profit: p.price - p.cost } as Product)),
+        catchError(this.handleError)
+      )
+    )
+  );
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   // Filter was changed
   changeFilter(filterBy: string): void {
@@ -147,8 +148,10 @@ export class ProductService {
 
   performFilter(products: Product[], filterBy: string): Product[] {
     filterBy = filterBy.toLocaleLowerCase();
-    return products.filter((product: Product) =>
-      product.productName.toLocaleLowerCase().indexOf(filterBy) !== -1);
+    return products.filter(
+      (product: Product) =>
+        product.productName.toLocaleLowerCase().indexOf(filterBy) !== -1
+    );
   }
 
   private handleError(err: any): Observable<never> {
@@ -164,7 +167,6 @@ export class ProductService {
       errorMessage = `Backend returned code ${err.status}: ${err.body.error}`;
     }
     console.error(err);
-    return throwError(errorMessage);
+    return throwError(() => err);
   }
-
 }

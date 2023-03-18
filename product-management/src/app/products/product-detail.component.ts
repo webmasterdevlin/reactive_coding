@@ -10,28 +10,28 @@ import { Product } from './product';
 @Component({
   templateUrl: './product-detail.component.html',
   styleUrls: ['./product-detail.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductDetailComponent implements OnInit {
   // Error messages
   private errorMessageSubject = new Subject<string>();
   errorMessage$ = this.errorMessageSubject.asObservable();
 
-  product$ = this.productService.product$
-    .pipe(
-      catchError(err => {
-        this.errorMessageSubject.next(err);
-        return EMPTY;
-      }));
+  product$ = this.productService.product$.pipe(
+    catchError((err) => {
+      this.errorMessageSubject.next(err);
+      return EMPTY;
+    })
+  );
 
-  pageTitle$ = this.product$
-    .pipe(
-      map((p: Product) =>
-        p ? `Product Detail for: ${p.productName}` : null)
-    );
+  pageTitle$ = this.product$.pipe(
+    map((p: Product) => (p ? `Product Detail for: ${p.productName}` : null))
+  );
 
-  constructor(private route: ActivatedRoute,
-              private productService: ProductService) { }
+  constructor(
+    private route: ActivatedRoute,
+    private productService: ProductService
+  ) {}
 
   ngOnInit(): void {
     const param = this.route.snapshot.paramMap.get('id');
@@ -39,5 +39,4 @@ export class ProductDetailComponent implements OnInit {
       this.productService.changeSelectedProduct(+param);
     }
   }
-
 }

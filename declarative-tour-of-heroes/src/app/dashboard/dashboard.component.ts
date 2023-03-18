@@ -8,15 +8,16 @@ import { map } from 'rxjs/operators';
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DashboardComponent {
   // DJK1 Assign to the declared Observable in the service
   heroes$ = this.heroService.heroes$.pipe(
     // Randomly pick the "top" heroes
-    map(heroes => [...heroes].sort(() => Math.random() - Math.random()).slice(0, 4))
+    map((heroes) =>
+      [...heroes].sort(() => Math.random() - Math.random()).slice(0, 4)
+    )
   );
 
-  constructor(private heroService: HeroService) { }
-
+  constructor(private heroService: HeroService) {}
 }

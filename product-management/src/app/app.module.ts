@@ -15,14 +15,10 @@ import { PageNotFoundComponent } from './page-not-found.component';
   imports: [
     BrowserModule,
     HttpClientModule,
+    AppRoutingModule,
     InMemoryWebApiModule.forRoot(ProductData),
-    AppRoutingModule
   ],
-  declarations: [
-    AppComponent,
-    WelcomeComponent,
-    PageNotFoundComponent
-  ],
-  bootstrap: [AppComponent]
+  declarations: [AppComponent, WelcomeComponent, PageNotFoundComponent],
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}

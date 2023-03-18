@@ -1,29 +1,45 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
-import { BehaviorSubject, Subject, combineLatest, Observable, of, merge } from 'rxjs';
-import { catchError, concatMap, debounceTime, distinctUntilChanged, map, scan, shareReplay, switchMap, tap } from 'rxjs/operators';
+import {
+  BehaviorSubject,
+  Subject,
+  combineLatest,
+  Observable,
+  of,
+  merge,
+} from 'rxjs';
+import {
+  catchError,
+  concatMap,
+  debounceTime,
+  distinctUntilChanged,
+  map,
+  scan,
+  shareReplay,
+  switchMap,
+  tap,
+} from 'rxjs/operators';
 
 import { Action, Hero } from './hero';
 import { MessageService } from './message.service';
 
 const httpOptions = {
-  headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+  headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
 };
 
 @Injectable({ providedIn: 'root' })
 export class HeroService {
-  private heroesUrl = 'api/heroes';  // URL to web api
+  private heroesUrl = 'api/heroes'; // URL to web api
 
   // DJK1 Declarative approach to retrieving all heroes
   // With shareReplay(1) to retain the data across pages
   /** GET heroes from the server */
-  allHeroes$ = this.http.get<Hero[]>(this.heroesUrl)
-    .pipe(
-      tap(_ => this.log('fetched heroes')),
-      shareReplay(1),
-      catchError(this.handleError<Hero[]>('getHeroes', []))
-    );
+  allHeroes$ = this.http.get<Hero[]>(this.heroesUrl).pipe(
+    tap((_) => this.log('fetched heroes')),
+    shareReplay(1),
+    catchError(this.handleError<Hero[]>('getHeroes', []))
+  );
 
   // DJK4 Declarative approach to create, update, and delete
   // Action stream defining the operation (create, update, delete)
@@ -41,15 +57,20 @@ export class HeroService {
     this.allHeroes$,
     this.heroCUDAction$.pipe(
       // Save the operation to the backend
-      concatMap(actionHero => this.saveHero(actionHero).pipe(
-        // Map the hero back to a Action<Hero> so that it can be used in the scan.
-        map(hero => ({ action: actionHero.action, hero } as Action<Hero>))
-      )),
+      concatMap((actionHero) =>
+        this.saveHero(actionHero).pipe(
+          // Map the hero back to a Action<Hero> so that it can be used in the scan.
+          map((hero) => ({ action: actionHero.action, hero } as Action<Hero>))
+        )
+      )
     )
   ).pipe(
     // Modify the retained array of heroes
     // Be sure to seed the scan to ensure correct data typing
-    scan((heroes, heroAction) => this.modifyHeroArray(heroes, heroAction), [] as Hero[]),
+    scan(
+      (heroes, heroAction) => this.modifyHeroArray(heroes, heroAction),
+      [] as Hero[]
+    ),
     shareReplay(1)
   );
 
@@ -62,22 +83,19 @@ export class HeroService {
 
   // Locating the hero in the already retrieved list of heroes
   // Combine the streams to "pass" both into the pipe chain
-  hero$ = combineLatest([
-    this.heroes$,
-    this.heroSelectedAction$
-  ]).pipe(
+  hero$ = combineLatest([this.heroes$, this.heroSelectedAction$]).pipe(
     map(([heroes, selectedHeroId]) =>
-      heroes.find(hero => hero.id === selectedHeroId)
+      heroes.find((hero) => hero.id === selectedHeroId)
     )
   );
 
   // Retrieving the selected hero from the server
   // Use the Action stream and switchMap to get the item
   hero2$ = this.heroSelectedAction$.pipe(
-    switchMap(id => {
+    switchMap((id) => {
       const url = `${this.heroesUrl}/${id}`;
       return this.http.get<Hero>(url).pipe(
-        tap(_ => this.log(`fetched hero id=${id}`)),
+        tap((_) => this.log(`fetched hero id=${id}`)),
         catchError(this.handleError<Hero>(`getHero id=${id}`))
       );
     })
@@ -96,11 +114,14 @@ export class HeroService {
       debounceTime(300),
       // ignore new term if same as previous term
       distinctUntilChanged()
-    )
+    ),
   ]).pipe(
     tap(([heroes, term]) => this.log(`term "${term}"`)),
     map(([heroes, term]) =>
-      heroes.filter(hero => hero.name.toLowerCase().includes(term.toLowerCase())))
+      heroes.filter((hero) =>
+        hero.name.toLowerCase().includes(term.toLowerCase())
+      )
+    )
   );
 
   // Filtering on the server
@@ -110,13 +131,13 @@ export class HeroService {
     debounceTime(300),
     // ignore new term if same as previous term
     distinctUntilChanged(),
-    switchMap(term => {
+    switchMap((term) => {
       if (!term.trim()) {
         // if no search term, return empty hero array.
         return of([]);
       }
       return this.http.get<Hero[]>(`${this.heroesUrl}/?name=${term}`).pipe(
-        tap(_ => this.log(`found heroes matching "${term}"`)),
+        tap((_) => this.log(`found heroes matching "${term}"`)),
         catchError(this.handleError<Hero[]>('searchHeroes', []))
       );
     })
@@ -125,7 +146,8 @@ export class HeroService {
 
   constructor(
     private http: HttpClient,
-    private messageService: MessageService) { }
+    private messageService: MessageService
+  ) {}
 
   //////// Action methods //////////
   //#region
@@ -155,7 +177,7 @@ export class HeroService {
   // DJK4 Emit when the create operation is complete.
   // Define complete notifications only if needed in the component
   createComplete(): void {
-    this.heroCreateCompleteSubject.next();
+    this.heroCreateCompleteSubject.next('Hero created');
   }
   //#endregion
 
@@ -180,8 +202,8 @@ export class HeroService {
 
     return this.http.delete<Hero>(url, httpOptions).pipe(
       // Delete does NOT return the hero, so map to the passed in hero
-      tap(_ => this.log(`deleted hero id=${id}`)),
-      map(_ => hero),
+      tap((_) => this.log(`deleted hero id=${id}`)),
+      map((_) => hero),
       catchError(this.handleError<Hero>('deleteHero'))
     );
   }
@@ -190,9 +212,9 @@ export class HeroService {
   /** PUT: update the hero on the server */
   private updateHeroOnServer(hero: Hero): Observable<Hero> {
     return this.http.put<Hero>(this.heroesUrl, hero, httpOptions).pipe(
-      tap(_ => this.log(`updated hero id=${hero.id}`)),
+      tap((_) => this.log(`updated hero id=${hero.id}`)),
       // Put does not return the updated hero, so map to the passed in hero.
-      map(_ => hero),
+      map((_) => hero),
       catchError(this.handleError<Hero>('updateHero'))
     );
   }
@@ -210,17 +232,20 @@ export class HeroService {
   }
 
   // Add to, update in, or delete item from the array
-  private modifyHeroArray(heroes: Hero[], value: Action<Hero> | Hero[]): Hero[] {
+  private modifyHeroArray(
+    heroes: Hero[],
+    value: Action<Hero> | Hero[]
+  ): Hero[] {
     if (!(value instanceof Array)) {
       if (value.action === `add`) {
         // Add the hero to the array of heroes
         return [...heroes, value.hero];
       } else if (value.action === `update`) {
         // Update the hero in the array of heroes
-        return heroes.map(h => h.id === value.hero.id ? value.hero : h);
+        return heroes.map((h) => (h.id === value.hero.id ? value.hero : h));
       } else if (value.action === 'delete') {
         // Filter out the hero from the array of heroes
-        return heroes.filter(h => h.id !== value.hero.id);
+        return heroes.filter((h) => h.id !== value.hero.id);
       }
     } else {
       return [...value];
@@ -236,7 +261,6 @@ export class HeroService {
    */
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
-
       // TODO: send the error to remote logging infrastructure
       console.error(error); // log to console instead
 

@@ -3,7 +3,6 @@ import { InMemoryDbService } from 'angular-in-memory-web-api';
 import { Product } from './product';
 
 export class ProductData implements InMemoryDbService {
-
   createDb(): { products: Product[] } {
     // Used to retrieve individual items
     const products: Product[] = [
@@ -18,7 +17,7 @@ export class ProductData implements InMemoryDbService {
         starRating: 3.2,
         imageUrl: 'assets/images/palantir.jpg',
         category: 'Communications',
-        tags: ['ball', 'phone']
+        tags: ['ball', 'phone'],
       },
       {
         id: 2,
@@ -27,10 +26,10 @@ export class ProductData implements InMemoryDbService {
         releaseDate: 'March 18, 2018',
         description: 'Elvin rope',
         price: 32.99,
-        cost: 10.00,
+        cost: 10.0,
         starRating: 4.2,
         imageUrl: 'assets/images/rope.png',
-        category: 'Camping'
+        category: 'Camping',
       },
       {
         id: 5,
@@ -43,7 +42,7 @@ export class ProductData implements InMemoryDbService {
         starRating: 4.9,
         imageUrl: 'assets/images/sword.png',
         category: 'Weapons',
-        tags: ['weapons', 'battle', 'elven']
+        tags: ['weapons', 'battle', 'elven'],
       },
       {
         id: 8,
@@ -55,7 +54,7 @@ export class ProductData implements InMemoryDbService {
         cost: 60.0,
         starRating: 2.7,
         imageUrl: 'assets/images/ring.jpg',
-        category: 'Jewelry'
+        category: 'Jewelry',
       },
       {
         id: 10,
@@ -67,7 +66,7 @@ export class ProductData implements InMemoryDbService {
         cost: 2100.18,
         starRating: 4.9,
         imageUrl: 'assets/images/evenstar.jpg',
-        category: 'Jewelry'
+        category: 'Jewelry',
       },
       {
         id: 11,
@@ -76,11 +75,11 @@ export class ProductData implements InMemoryDbService {
         releaseDate: 'March 19, 2018',
         description: 'Leaf rake with 48-inch wooden handle',
         price: 19.95,
-        cost: 2.00,
+        cost: 2.0,
         starRating: 3.2,
         imageUrl: 'assets/images/leaf_rake.png',
         category: 'Garden',
-        tags: ['rake', 'leaf', 'yard', 'home']
+        tags: ['rake', 'leaf', 'yard', 'home'],
       },
       {
         id: 12,
@@ -89,10 +88,10 @@ export class ProductData implements InMemoryDbService {
         releaseDate: 'March 18, 2018',
         description: '15 gallon capacity rolling garden cart',
         price: 32.99,
-        cost: 18.00,
+        cost: 18.0,
         starRating: 4.2,
         imageUrl: 'assets/images/garden_cart.png',
-        category: 'Garden'
+        category: 'Garden',
       },
       {
         id: 15,
@@ -101,11 +100,11 @@ export class ProductData implements InMemoryDbService {
         releaseDate: 'May 21, 2018',
         description: 'Curved claw steel hammer',
         price: 8.9,
-        cost: 3.50,
+        cost: 3.5,
         starRating: 4.8,
         imageUrl: 'assets/images/hammer.png',
         category: 'Toolbox',
-        tags: ['tools', 'hammer', 'construction']
+        tags: ['tools', 'hammer', 'construction'],
       },
       {
         id: 18,
@@ -114,10 +113,10 @@ export class ProductData implements InMemoryDbService {
         releaseDate: 'May 15, 2018',
         description: '15-inch steel blade hand saw',
         price: 11.55,
-        cost: 1.30,
+        cost: 1.3,
         starRating: 3.7,
         imageUrl: 'assets/images/saw.png',
-        category: 'Toolbox'
+        category: 'Toolbox',
       },
       {
         id: 20,
@@ -126,11 +125,11 @@ export class ProductData implements InMemoryDbService {
         releaseDate: 'October 15, 2018',
         description: 'Standard two-button video game controller',
         price: 35.95,
-        cost: .99,
+        cost: 0.99,
         starRating: 4.6,
         imageUrl: 'assets/images/xbox-controller.png',
-        category: 'Gaming'
-      }
+        category: 'Gaming',
+      },
     ];
 
     return { products };
